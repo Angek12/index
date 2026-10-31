@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Index: fresh produce, matched to real demand</title>
+<meta name="description" content="Index connects grocery shops with farmers in Rwanda. Shops record sales and request produce, farmers list what they can supply, and every order is tracked from match to delivery.">
+<meta property="og:title" content="Index: fresh produce, matched to real demand">
+<meta property="og:description" content="A simple platform that matches grocery shops with farmers in Rwanda and tracks every order to delivery.">
+<meta property="og:type" content="website">
+<style>
+  /* To change where the buttons go, search this file for the address below and replace it. */
+  /* App address: https://frontend-r3ap.vercel.app */
+  :root{
+    --ink:#14231a; --muted:#4a5d50; --paper:#f4f8f1; --white:#ffffff;
+    --green:#0f5132; --leaf:#2e8b57; --crate:#f2b705; --tomato:#c93a25; --line:#d5e0d1;
+    --max:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--paper);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  :focus-visible{outline:3px solid var(--crate);outline-offset:3px}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.025em;line-height:1.08}
+  h1{font-size:clamp(2.5rem,7vw,4.6rem)}
+  h2{font-size:clamp(1.9rem,4.6vw,3rem)}
+  h3{font-size:1.2rem;letter-spacing:-.01em}
+  p{margin:0}
+  .lead{font-size:clamp(1.1rem,2.4vw,1.35rem);max-width:34em}
+  section{padding:84px 0}
+
+  /* buttons */
+  .btn{display:inline-block;text-decoration:none;font-weight:700;font-size:1.05rem;padding:15px 26px;border-radius:12px;transition:transform .15s ease}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-crate{background:var(--crate);color:var(--ink)}
+  .btn-ghost{border:2px solid rgba(255,255,255,.55);color:#fff}
+  .btn-ink{background:var(--ink);color:#fff}
+
+  /* top bar + hero */
+  .hero{background:var(--green);color:#fff;padding:0 0 92px}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:22px 0}
+  .logo{font-weight:800;font-size:1.5rem;letter-spacing:-.02em;text-decoration:none}
+  .logo span{display:inline-block;width:14px;height:14px;background:var(--crate);border-radius:50%;margin-right:9px}
+  .bar nav{display:flex;gap:22px;font-weight:600}
+  .bar nav a{text-decoration:none;opacity:.88}
+  .bar nav a:hover{opacity:1}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;padding-top:42px}
+  .hero h1{margin-bottom:22px}
+  .hero .lead{color:#dcebe0;margin-bottom:32px}
+  .hero .cta{display:flex;gap:14px;flex-wrap:wrap}
+
+  /* order ticket in hero: the one memorable element */
+  .ticket{background:#fff;color:var(--ink);border-radius:18px;padding:24px 24px 26px;box-shadow:0 24px 50px rgba(0,0,0,.28);position:relative}
+  .ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:22px;height:22px;background:var(--green);border-radius:50%;transform:translateY(-50%)}
+  .ticket::before{left:-11px}.ticket::after{right:-11px}
+  .ticket .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .ticket .crop{font-size:1.7rem;font-weight:800;letter-spacing:-.02em}
+  .ticket .qty{font-weight:700;color:var(--muted)}
+  .ticket .parties{margin:6px 0 18px;color:var(--muted);font-size:.98rem}
+  .ticket .terms{display:flex;gap:22px;flex-wrap:wrap;border-top:2px dashed var(--line);padding-top:16px;margin-bottom:24px;font-size:.95rem}
+  .ticket .terms b{display:block;font-size:1.1rem}
+  .track{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);position:relative}
+  .track::before{content:"";position:absolute;left:12%;right:12%;top:11px;height:4px;background:var(--line);border-radius:2px}
+  .track::after{content:"";position:absolute;left:12%;top:11px;height:4px;width:0;background:var(--leaf);border-radius:2px;animation:fill 2.2s .6s ease-out forwards}
+  .track li{position:relative;text-align:center;font-size:.8rem;font-weight:700;color:var(--muted);z-index:1}
+  .track li i{display:block;width:26px;height:26px;margin:0 auto 7px;border-radius:50%;background:#fff;border:4px solid var(--line)}
+  .track li.done i{background:var(--leaf);border-color:var(--leaf)}
+  .track li.done{color:var(--ink)}
+  @keyframes fill{to{width:50%}}
+
+  /* gap */
+  .gap{background:var(--white)}
+  .gap h2{margin-bottom:34px;max-width:15em}
+  .gap-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:3px solid var(--ink)}
+  .gap-row div{padding:22px 24px 0 0}
+  .gap-row div+div{padding-left:24px;border-left:1px solid var(--line)}
+  .gap-row h3{margin-bottom:8px}
+  .gap-row p{color:var(--muted)}
+
+  /* steps */
+  .steps h2{margin-bottom:12px}
+  .steps .lead{color:var(--muted);margin-bottom:42px}
+  .step-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:26px;counter-reset:s}
+  .step-list li{counter-increment:s;position:relative;padding-top:58px}
+  .step-list li::before{content:counter(s);position:absolute;top:0;left:0;width:42px;height:42px;border-radius:50%;background:var(--green);color:#fff;font-weight:800;font-size:1.2rem;display:grid;place-items:center}
+  .step-list li::after{content:"";position:absolute;top:20px;left:54px;right:-14px;height:3px;background:var(--line)}
+  .step-list li:last-child::after{display:none}
+  .step-list h3{margin-bottom:8px}
+  .step-list p{color:var(--muted)}
+
+  /* product preview */
+  .preview{background:var(--ink);color:#fff}
+  .preview h2{margin-bottom:12px}
+  .preview .lead{color:#b9c9be;margin-bottom:38px}
+  .panels{display:grid;grid-template-columns:1.2fr .8fr;gap:22px}
+  .panel{background:#fff;color:var(--ink);border-radius:16px;padding:24px}
+  .panel h3{margin-bottom:4px}
+  .panel .sub{color:var(--muted);font-size:.9rem;margin-bottom:18px}
+  .legend{display:flex;gap:16px;font-size:.85rem;color:var(--muted);margin-bottom:14px}
+  .legend span::before{content:"";display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;background:var(--leaf)}
+  .legend span+span::before{background:var(--crate)}
+  .row{display:grid;grid-template-columns:110px 1fr 108px;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+  .row b{font-size:1rem}
+  .bars i{display:block;height:11px;border-radius:6px;width:var(--w)}
+  .bars i+i{margin-top:5px}
+  .bars .d{background:var(--leaf)}.bars .s{background:var(--crate)}
+  .verdict{font-weight:800;font-size:.92rem;text-align:right}
+  .short{color:var(--tomato)}.surplus{color:var(--leaf)}.even{color:var(--muted)}
+  .order{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border-top:1px solid var(--line)}
+  .order small{display:block;color:var(--muted)}
+  .pill{font-size:.78rem;font-weight:800;padding:5px 11px;border-radius:99px;white-space:nowrap}
+  .p-matched{background:#fdf0c4;color:#7a5800}.p-confirmed{background:#e0e6fb;color:#2b3a8c}
+  .p-delivered{background:#d3f1ea;color:#0b5b4d}.p-completed{background:#d8f1de;color:#14602a}
+  .note{margin-top:16px;font-size:.82rem;opacity:.7}
+
+  /* who gets what: columns, not cards */
+  .who h2{margin-bottom:38px}
+  .who-cols{display:grid;grid-template-columns:repeat(3,1fr);border-top:3px solid var(--green)}
+  .who-cols div{padding:24px 26px 0 0}
+  .who-cols div+div{padding-left:26px;border-left:1px solid var(--line)}
+  .who-cols h3{font-size:1.5rem;margin-bottom:4px}
+  .who-cols .tag{color:var(--muted);margin-bottom:14px}
+  .who-cols ul{margin:0;padding-left:20px}
+  .who-cols li{margin-bottom:9px}
+
+  /* Rwanda */
+  .rw{background:var(--white)}
+  .rw h2{margin-bottom:30px}
+  .rw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
+  .rw-grid h3{margin-bottom:6px}
+  .rw-grid p{color:var(--muted)}
+
+  /* closing */
+  .close{background:var(--crate);text-align:left}
+  .close .wrap{display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap}
+  .close h2{max-width:14em}
+  .close p{margin-top:10px;font-size:1.15rem}
+  footer{background:var(--ink);color:#aebdb3;padding:28px 0;font-size:.92rem}
+  footer .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+  @media (max-width:880px){
+    section{padding:62px 0}
+    .hero-grid,.panels{grid-template-columns:1fr}
+    .gap-row,.who-cols{grid-template-columns:1fr}
+    .gap-row div+div,.who-cols div+div{border-left:0;border-top:1px solid var(--line);padding-left:0;margin-top:22px}
+    .gap-row div,.who-cols div{padding-right:0}
+    .step-list{grid-template-columns:1fr 1fr;gap:34px 22px}
+    .step-list li::after{display:none}
+    .rw-grid{grid-template-columns:1fr 1fr}
+    .bar nav{display:none}
+  }
+  @media (max-width:520px){
+    .step-list,.rw-grid{grid-template-columns:1fr}
+    .row{grid-template-columns:92px 1fr;}
+    .verdict{grid-column:1 / -1;text-align:left;margin-top:-4px}
+    .hero .cta .btn,.close .btn{width:100%;text-align:center}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .track::after{animation:none;width:50%}
+    .btn{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="bar">
+      <a class="logo" href="#top"><span></span>Index</a>
+      <nav aria-label="Main">
+        <a href="#how">How it works</a>
+        <a href="#product">See it in action</a>
+        <a href="#who">Who it is for</a>
+      </nav>
+    </div>
+    <div class="hero-grid" id="top">
+      <div>
+        <h1>Fresh produce, matched to real demand.</h1>
+        <p class="lead">Index connects grocery shops with farmers across Rwanda. Shops record sales and ask for what they need, farmers list what they can deliver, and every order is tracked from match to delivery.</p>
+        <div class="cta">
+          <a class="btn btn-crate" href="https://frontend-r3ap.vercel.app">Open the platform</a>
+          <a class="btn btn-ghost" href="#how">See how it works</a>
+        </div>
+      </div>
+      <div class="ticket" aria-label="Sample order">
+        <div class="top"><span class="crop">Tomatoes</span><span class="qty">50 kg</span></div>
+        <p class="parties">Nyabugogo Fresh Market and Musanze Growers</p>
+        <div class="terms">
+          <div>Agreed price<b>800 RWF per kg</b></div>
+          <div>Delivery<b>Friday</b></div>
+        </div>
+        <ol class="track">
+          <li class="done"><i></i>Matched</li>
+          <li class="done"><i></i>Confirmed</li>
+          <li><i></i>Delivered</li>
+          <li><i></i>Completed</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="gap">
+  <div class="wrap">
+    <h2>Good produce and hungry shelves rarely meet.</h2>
+    <div class="gap-row">
+      <div><h3>Shops run out</h3><p>Popular items sell out while owners guess what to reorder.</p></div>
+      <div><h3>Farmers cannot find buyers</h3><p>Harvests are ready, but nobody knows who needs them or when.</p></div>
+      <div><h3>Produce goes unsold</h3><p>Without a clear picture of demand, food and money are wasted.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="steps" id="how">
+  <div class="wrap">
+    <h2>From a shelf gap to a delivered order in four steps.</h2>
+    <p class="lead">No complicated setup. Everyone uses a simple website on their phone or computer.</p>
+    <ol class="step-list">
+      <li><h3>Shops ask</h3><p>A shop records its sales and requests the crop, quantity and date it needs.</p></li>
+      <li><h3>Farmers offer</h3><p>A farmer lists what is ready, how much, at what price and until when.</p></li>
+      <li><h3>We match</h3><p>The admin sees the best farmers for each request and creates the order.</p></li>
+      <li><h3>Everyone tracks</h3><p>Confirm, deliver and receive in the app. Every step is saved.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="preview" id="product">
+  <div class="wrap">
+    <h2>See demand and supply side by side.</h2>
+    <p class="lead">The admin dashboard shows which crops are short, which are in surplus, and how every order is moving.</p>
+    <div class="panels">
+      <div class="panel">
+        <h3>Weekly demand and supply</h3>
+        <p class="sub">Kilograms this week</p>
+        <div class="legend"><span>Requested by shops</span><span>Listed by farmers</span></div>
+        <div class="row"><b>Tomatoes</b><div class="bars"><i class="d" style="--w:100%"></i><i class="s" style="--w:71%"></i></div><div class="verdict short">Short 120 kg</div></div>
+        <div class="row"><b>Onions</b><div class="bars"><i class="d" style="--w:66%"></i><i class="s" style="--w:100%"></i></div><div class="verdict surplus">Surplus 130 kg</div></div>
+        <div class="row"><b>Irish potatoes</b><div class="bars"><i class="d" style="--w:100%"></i><i class="s" style="--w:100%"></i></div><div class="verdict even">Balanced</div></div>
+        <div class="row"><b>Cabbage</b><div class="bars"><i class="d" style="--w:100%"></i><i class="s" style="--w:50%"></i></div><div class="verdict short">Short 90 kg</div></div>
+      </div>
+      <div class="panel">
+        <h3>Orders</h3>
+        <p class="sub">Every status change is recorded</p>
+        <div class="order"><div><b>Tomatoes, 50 kg</b><small>Delivery Friday</small></div><span class="pill p-matched">Matched</span></div>
+        <div class="order"><div><b>Onions, 80 kg</b><small>Delivery Saturday</small></div><span class="pill p-confirmed">Confirmed</span></div>
+        <div class="order"><div><b>Cabbage, 40 kg</b><small>Delivered today</small></div><span class="pill p-delivered">Delivered</span></div>
+        <div class="order"><div><b>Irish potatoes, 120 kg</b><small>Received by the shop</small></div><span class="pill p-completed">Completed</span></div>
+      </div>
+    </div>
+    <p class="note">Sample data shown for illustration.</p>
+  </div>
+</section>
+
+<section class="who" id="who">
+  <div class="wrap">
+    <h2>Built for three kinds of people.</h2>
+    <div class="who-cols">
+      <div>
+        <h3>Shops</h3>
+        <p class="tag">Stock what sells.</p>
+        <ul>
+          <li>Record daily sales in seconds</li>
+          <li>Request produce with a quantity and a date</li>
+          <li>Track every order and confirm delivery</li>
+          <li>See a forecast of next week's demand</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Farmers</h3>
+        <p class="tag">Grow what is wanted.</p>
+        <ul>
+          <li>List your harvest, price and dates</li>
+          <li>See what shops are asking for right now</li>
+          <li>Confirm orders and record delivery</li>
+          <li>Never promise the same stock twice</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Coordinators</h3>
+        <p class="tag">Keep the whole chain moving.</p>
+        <ul>
+          <li>Match requests to the best available farmer</li>
+          <li>Follow every order with a full history</li>
+          <li>Read weekly reports on shortages and surplus</li>
+          <li>Measure fulfilment rate and cost per order</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="rw">
+  <div class="wrap">
+    <h2>Made for how Rwanda trades.</h2>
+    <div class="rw-grid">
+      <div><h3>Works on any phone</h3><p>Open it in a browser. No heavy download needed.</p></div>
+      <div><h3>Prices in RWF</h3><p>Amounts, totals and costs are shown in Rwandan francs.</p></div>
+      <div><h3>All 30 districts</h3><p>Shops and farmers choose their district when they sign up.</p></div>
+      <div><h3>Android app</h3><p>An installable app is available for pilot users.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="close">
+  <div class="wrap">
+    <div>
+      <h2>Ready to connect shops and farmers?</h2>
+      <p>Create a free account and try the whole flow in minutes.</p>
+    </div>
+    <a class="btn btn-ink" href="https://frontend-r3ap.vercel.app">Open the platform</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Index, made in Rwanda</span>
+    <span>Fresh produce, matched to real demand.</span>
+  </div>
+</footer>
+
+</body>
+</html>
