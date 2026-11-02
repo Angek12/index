@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Index | Fresh produce, matched to real demand</title>
+<meta name="description" content="Index connects grocery shops with farmers in Rwanda. Record sales, request produce, list supply, match orders and track every delivery in one official portal.">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:title" content="Index | Fresh produce, matched to real demand">
+<meta property="og:description" content="A simple portal that connects grocery shops with farmers in Rwanda and tracks every order from match to delivery.">
+<meta property="og:type" content="website">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  /* Official portal address used by every button on this page: https://frontend-r3ap.vercel.app */
+  :root{
+    --ink:#172019; --muted:#56615a; --soft:#8a948d;
+    --line:#e4e8e5; --panel:#f7f9f7; --white:#fff;
+    --green:#1f7a47; --green-dark:#175f37; --red:#b3341f;
+    --max:1120px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:84px}
+  body{margin:0;background:var(--white);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:1.0625rem;line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  p{margin:0}
+  h1,h2,h3{margin:0;color:var(--ink);font-weight:700}
+  h1{font-size:clamp(2.4rem,5.6vw,3.9rem);line-height:1.04;letter-spacing:-.035em}
+  h2{font-size:clamp(1.7rem,3.4vw,2.4rem);line-height:1.12;letter-spacing:-.025em}
+  h3{font-size:1.1rem;letter-spacing:-.01em;line-height:1.3}
+  :focus-visible{outline:3px solid var(--green);outline-offset:3px;border-radius:4px}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:#fff;padding:10px 14px;border-radius:6px;z-index:100}
+  .skip:focus{left:8px}
+  section{padding:92px 0;border-top:1px solid var(--line)}
+  .muted{color:var(--muted)}
+  .sec-intro{max-width:40rem;margin-top:14px;color:var(--muted)}
+
+  /* buttons */
+  .btn{display:inline-block;text-decoration:none;font-weight:600;font-size:1rem;line-height:1;padding:15px 24px;border-radius:8px;border:1px solid transparent;transition:background .15s ease,border-color .15s ease}
+  .btn-green{background:var(--green);color:#fff}
+  .btn-green:hover{background:var(--green-dark)}
+  .btn-line{border-color:var(--line);color:var(--ink);background:#fff}
+  .btn-line:hover{border-color:var(--ink)}
+  .btn-sm{padding:11px 18px;font-size:.95rem}
+
+  /* header */
+  header.top{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.97);border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .logo{display:flex;align-items:center;text-decoration:none}
+  .logo svg{height:34px;width:auto;display:block}
+  .bar nav{display:flex;gap:30px;font-size:.97rem;font-weight:500}
+  .bar nav a{text-decoration:none;color:var(--muted)}
+  .bar nav a:hover{color:var(--ink)}
+
+  /* hero */
+  .hero{padding:78px 0 90px;border-top:0}
+  .hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center}
+  .hero h1{margin-bottom:22px}
+  .hero .lead{font-size:1.2rem;color:var(--muted);max-width:32rem;margin-bottom:30px}
+  .hero .cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .hero .portal-url{margin-top:22px;font-size:.92rem;color:var(--soft)}
+  .hero .portal-url a{color:var(--green);font-weight:600;text-decoration:none}
+  .hero .portal-url a:hover{text-decoration:underline}
+
+  /* sample browser */
+  .browser{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;box-shadow:0 14px 34px rgba(23,32,25,.08)}
+  .chrome{display:flex;align-items:center;gap:7px;padding:11px 14px;background:var(--panel);border-bottom:1px solid var(--line)}
+  .chrome i{width:10px;height:10px;border-radius:50%;background:#d7dcd8;display:block}
+  .chrome span{margin-left:10px;flex:1;background:#fff;border:1px solid var(--line);border-radius:6px;padding:3px 10px;font-size:.78rem;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .screen{padding:20px}
+  .screen h4{margin:0 0 14px;font-size:1rem}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:8px;margin-bottom:18px}
+  .stats div{padding:11px 12px;font-size:.76rem;color:var(--muted);line-height:1.3}
+  .stats div+div{border-left:1px solid var(--line)}
+  .stats b{display:block;font-size:1.35rem;color:var(--ink);letter-spacing:-.02em}
+  .mini{width:100%;border-collapse:collapse;font-size:.84rem}
+  .mini th{text-align:left;font-weight:500;color:var(--soft);padding:8px 6px;border-bottom:1px solid var(--line)}
+  .mini td{padding:10px 6px;border-bottom:1px solid var(--line)}
+  .mini tr:last-child td{border-bottom:0}
+  .mini a{color:var(--green);font-weight:600;text-decoration:none;white-space:nowrap}
+  .sample{margin-top:12px;font-size:.76rem;color:var(--soft)}
+
+  /* problem */
+  .two{display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:start}
+  .problem-points{display:grid;gap:22px}
+  .problem-points div{border-left:3px solid var(--green);padding-left:20px}
+  .problem-points h3{margin-bottom:4px}
+  .problem-points p{color:var(--muted)}
+
+  /* steps */
+  .steps{list-style:none;margin:0;padding:0;counter-reset:s}
+  .steps li{counter-increment:s;display:grid;grid-template-columns:56px 1fr;gap:6px 18px;padding:22px 0;border-top:1px solid var(--line)}
+  .steps li:last-child{border-bottom:1px solid var(--line)}
+  .steps li::before{content:counter(s);font-size:1.7rem;font-weight:700;color:var(--green);letter-spacing:-.02em;line-height:1.1;grid-row:span 2}
+  .steps h3{margin:0}
+  .steps p{color:var(--muted)}
+  .table-wrap{overflow-x:auto;margin-top:52px}
+  table.life{width:100%;border-collapse:collapse;min-width:640px}
+  table.life caption{text-align:left;font-weight:700;font-size:1.1rem;padding-bottom:12px}
+  table.life th{text-align:left;font-weight:500;color:var(--soft);font-size:.88rem;padding:10px 14px 10px 0;border-bottom:1px solid var(--ink)}
+  table.life td{padding:14px 14px 14px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  table.life td:first-child{font-weight:600;white-space:nowrap}
+
+  /* feature index */
+  .group{display:grid;grid-template-columns:250px 1fr;gap:34px;padding:34px 0;border-top:1px solid var(--line)}
+  .group:first-of-type{margin-top:42px;border-top:1px solid var(--ink)}
+  .group h3{font-size:1.25rem}
+  .group .for{display:block;margin-top:4px;font-size:.9rem;font-weight:500;color:var(--green)}
+  dl{margin:0}
+  .entry{display:grid;grid-template-columns:210px 1fr;gap:18px;padding:11px 0;border-bottom:1px dotted #cdd4cf}
+  .entry:first-child{padding-top:0}
+  .entry:last-child{border-bottom:0;padding-bottom:0}
+  dt{font-weight:600}
+  dd{margin:0;color:var(--muted)}
+
+  /* inside the portal */
+  .panels{display:grid;grid-template-columns:1.15fr .85fr;gap:24px;margin-top:42px}
+  .panel{border:1px solid var(--line);border-radius:12px;padding:26px}
+  .panel h3{margin-bottom:4px}
+  .panel .sub{color:var(--soft);font-size:.9rem;margin-bottom:16px}
+  .panel table{width:100%;border-collapse:collapse;font-size:.95rem}
+  .panel th{text-align:left;font-weight:500;color:var(--soft);padding:8px 6px 8px 0;border-bottom:1px solid var(--line);font-size:.85rem}
+  .panel td{padding:12px 6px 12px 0;border-bottom:1px solid var(--line)}
+  .panel tr:last-child td{border-bottom:0}
+  .short{color:var(--red);font-weight:600}.surplus{color:var(--green);font-weight:600}.even{color:var(--muted)}
+  .timeline{list-style:none;margin:0;padding:0}
+  .timeline li{position:relative;padding:0 0 22px 30px}
+  .timeline li:last-child{padding-bottom:0}
+  .timeline li::before{content:"";position:absolute;left:0;top:6px;width:14px;height:14px;border-radius:50%;border:2px solid var(--line);background:#fff}
+  .timeline li::after{content:"";position:absolute;left:6px;top:22px;bottom:-4px;width:2px;background:var(--line)}
+  .timeline li:last-child::after{display:none}
+  .timeline li.done::before{background:var(--green);border-color:var(--green)}
+  .timeline li.done::after{background:var(--green)}
+  .timeline li.now::before{border-color:var(--green)}
+  .timeline b{display:block}
+  .timeline small{color:var(--muted);font-size:.9rem}
+
+  /* audiences */
+  .who{display:grid;grid-template-columns:repeat(3,1fr);margin-top:42px;border-top:1px solid var(--ink)}
+  .who>div{padding:28px 28px 0 0}
+  .who>div+div{padding-left:28px;border-left:1px solid var(--line)}
+  .who h3{font-size:1.35rem;margin-bottom:8px}
+  .who p{color:var(--muted);margin-bottom:14px}
+  .who a{color:var(--green);font-weight:600;text-decoration:none}
+  .who a:hover{text-decoration:underline}
+
+  /* faq */
+  .faq{margin-top:38px;border-top:1px solid var(--ink)}
+  details{border-bottom:1px solid var(--line)}
+  summary{list-style:none;cursor:pointer;padding:20px 40px 20px 0;font-weight:600;position:relative}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";position:absolute;right:6px;top:50%;transform:translateY(-52%);font-size:1.5rem;font-weight:400;color:var(--green)}
+  details[open] summary::after{content:"\2212"}
+  details p{padding:0 40px 22px 0;color:var(--muted);max-width:46rem}
+
+  /* next + cta */
+  .next ul{margin:26px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:14px 40px}
+  .next li{padding-left:22px;position:relative;color:var(--muted)}
+  .next li::before{content:"";position:absolute;left:0;top:.7em;width:9px;height:2px;background:var(--green)}
+  .cta-band{background:var(--panel)}
+  .cta-band .wrap{display:flex;justify-content:space-between;align-items:center;gap:30px;flex-wrap:wrap}
+  .cta-band p{margin-top:10px;color:var(--muted);max-width:34rem}
+
+  footer{border-top:1px solid var(--line);padding:40px 0}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  footer .logo svg{height:28px}
+  footer nav{display:flex;gap:24px;flex-wrap:wrap;font-size:.95rem}
+  footer nav a{color:var(--muted);text-decoration:none}
+  footer nav a:hover{color:var(--ink)}
+  .copy{width:100%;color:var(--soft);font-size:.88rem}
+
+  @media (max-width:900px){
+    section{padding:68px 0}
+    .hero{padding:48px 0 64px}
+    .hero-grid,.two,.panels{grid-template-columns:1fr;gap:40px}
+    .group{grid-template-columns:1fr;gap:18px}
+    .who{grid-template-columns:1fr}
+    .who>div,.who>div+div{padding:24px 0 8px;border-left:0}
+    .who>div+div{border-top:1px solid var(--line)}
+    .bar nav{display:none}
+    .next ul{grid-template-columns:1fr}
+  }
+  @media (max-width:560px){
+    .entry{grid-template-columns:1fr;gap:2px}
+    .hero .cta .btn{width:100%;text-align:center}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .stats div:nth-child(3){border-left:0}
+    .stats div:nth-child(n+3){border-top:1px solid var(--line)}
+    .screen{padding:14px}
+    .btn-sm{padding:10px 14px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .btn{transition:none}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap bar">
+    <a class="logo" href="#top" aria-label="Index home">
+      <svg viewBox="0 0 118 48" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+        <path d="M12 3 C22 7 26 15 12 19 C-2 15 2 7 12 3 Z" fill="#1f7a47"/>
+        <rect x="7" y="23" width="10" height="20" rx="2.5" fill="#172019"/>
+        <text x="25" y="43" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="38" font-weight="700" letter-spacing="-1" fill="#172019">ndex</text>
+      </svg>
+    </a>
+    <nav aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#who">Who it is for</a>
+      <a href="#faq">Questions</a>
+    </nav>
+    <a class="btn btn-green btn-sm" href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">Open portal</a>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Fresh produce, matched to real demand.</h1>
+      <p class="lead">Index connects grocery shops with farmers in Rwanda. Shops record sales and ask for what they need, farmers list what they can deliver, and every order is tracked from match to delivery.</p>
+      <div class="cta">
+        <a class="btn btn-green" href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">Open the official portal</a>
+        <a class="btn btn-line" href="#features">See what it does</a>
+      </div>
+      <p class="portal-url">Official portal: <a href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">frontend-r3ap.vercel.app</a></p>
+    </div>
+
+    <div>
+      <div class="browser" aria-label="Sample view of the Index portal">
+        <div class="chrome"><i></i><i></i><i></i><span>frontend-r3ap.vercel.app/dashboard</span></div>
+        <div class="screen">
+          <h4>Dashboard</h4>
+          <div class="stats">
+            <div><b>12</b>Shops</div>
+            <div><b>5</b>Farmers</div>
+            <div><b>7</b>Open requests</div>
+            <div><b>9</b>Listings</div>
+          </div>
+          <table class="mini">
+            <thead><tr><th>Shop</th><th>Crop</th><th>Quantity</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>Nyabugogo Fresh Market</td><td>Tomatoes</td><td>50 kg</td><td><a href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">Find supply</a></td></tr>
+              <tr><td>Kimironko Grocers</td><td>Cabbage</td><td>40 kg</td><td><a href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">Find supply</a></td></tr>
+              <tr><td>Remera Daily Shop</td><td>Onions</td><td>80 kg</td><td><a href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">Find supply</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="sample">Sample data for illustration.</p>
+    </div>
+  </div>
+</section>
+
+<section id="problem">
+  <div class="wrap two">
+    <div>
+      <h2>Good produce and empty shelves rarely meet.</h2>
+      <p class="sec-intro">Shop owners guess what to reorder, so popular items run out while others go unsold. Farmers have a harvest but no clear view of who needs it. Index puts both sides in one place, with clear numbers.</p>
+    </div>
+    <div class="problem-points">
+      <div><h3>Stockouts</h3><p>Shops lose sales when a popular crop runs out before the next delivery.</p></div>
+      <div><h3>Unsold produce</h3><p>Stock that nobody asked for spoils, and the money behind it is lost.</p></div>
+      <div><h3>No view for farmers</h3><p>Farmers cannot see what shops need, in what amount, or by when.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="two">
+      <div>
+        <h2>How Index works.</h2>
+        <p class="sec-intro">Four steps take an order from a shelf gap to a recorded delivery. Everything happens in the official portal, on a phone or a computer.</p>
+        <p style="margin-top:26px"><a class="btn btn-green btn-sm" href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">Open the portal</a></p>
+      </div>
+      <ol class="steps">
+        <li><h3>Shops ask</h3><p>A shop records its sales and requests the crop, quantity and date it needs.</p></li>
+        <li><h3>Farmers offer</h3><p>A farmer lists what is ready, how much, at what price and until when.</p></li>
+        <li><h3>A coordinator matches</h3><p>The coordinator sees the best available farmers for each request and creates the order.</p></li>
+        <li><h3>Everyone tracks</h3><p>The farmer confirms and delivers, the shop confirms receipt, and every step is saved.</p></li>
+      </ol>
+    </div>
+
+    <div class="table-wrap">
+      <table class="life">
+        <caption>The life of an order</caption>
+        <thead><tr><th>Status</th><th>Who acts</th><th>What happens</th></tr></thead>
+        <tbody>
+          <tr><td>Matched</td><td>Coordinator</td><td>The order is created and the farmer's quantity is reserved.</td></tr>
+          <tr><td>Confirmed</td><td>Farmer</td><td>The farmer accepts the order.</td></tr>
+          <tr><td>Delivered</td><td>Farmer</td><td>Delivery is recorded, with the transport cost paid.</td></tr>
+          <tr><td>Completed</td><td>Shop</td><td>The shop confirms receipt and reports any spoiled quantity.</td></tr>
+          <tr><td>Failed or cancelled</td><td>Anyone involved</td><td>A written reason is saved, the quantity returns to the farmer and the request reopens.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>What the official portal does.</h2>
+    <p class="sec-intro">The portal holds every feature of Index. Here is the full list, grouped by who uses it.</p>
+
+    <div class="group">
+      <div><h3>Accounts and access</h3><span class="for">Everyone</span></div>
+      <dl>
+        <div class="entry"><dt>Sign up as a shop or farmer</dt><dd>Create an account with your business name, district, sector and address.</dd></div>
+        <div class="entry"><dt>Secure sign-in</dt><dd>Passwords are stored scrambled, and a login lasts 24 hours.</dd></div>
+        <div class="entry"><dt>Role-based access</dt><dd>Each person sees only the pages and records that belong to their role.</dd></div>
+        <div class="entry"><dt>Profile</dt><dd>Update your name, phone and business details at any time.</dd></div>
+      </dl>
+    </div>
+
+    <div class="group">
+      <div><h3>For shops</h3><span class="for">Stock what sells</span></div>
+      <dl>
+        <div class="entry"><dt>Sales log</dt><dd>Record crop, quantity, price and date. The last 90 days stay on screen.</dd></div>
+        <div class="entry"><dt>Produce requests</dt><dd>Ask for a crop, quantity and date, with an optional maximum price and notes.</dd></div>
+        <div class="entry"><dt>Request tracking</dt><dd>See whether each request is open, matched, fulfilled or cancelled.</dd></div>
+        <div class="entry"><dt>Demand forecast</dt><dd>A weekly sales chart with a prediction for next week, checked against a simple baseline.</dd></div>
+        <div class="entry"><dt>Shop dashboard</dt><dd>Recent sales, open requests and active orders at a glance.</dd></div>
+      </dl>
+    </div>
+
+    <div class="group">
+      <div><h3>For farmers</h3><span class="for">Grow what is wanted</span></div>
+      <dl>
+        <div class="entry"><dt>Supply listings</dt><dd>Offer a crop with quantity, price and the dates it is available.</dd></div>
+        <div class="entry"><dt>Edit or withdraw</dt><dd>Change a listing, or take it off the market whenever you need to.</dd></div>
+        <div class="entry"><dt>Market demand</dt><dd>See how much of each crop shops want and by when, without shop names.</dd></div>
+        <div class="entry"><dt>No double promises</dt><dd>Quantity is reserved the moment an order is created, so stock is never sold twice.</dd></div>
+        <div class="entry"><dt>Farmer dashboard</dt><dd>Active listings, active orders and what shops need right now.</dd></div>
+      </dl>
+    </div>
+
+    <div class="group">
+      <div><h3>For coordinators</h3><span class="for">Keep the chain moving</span></div>
+      <dl>
+        <div class="entry"><dt>Request matching</dt><dd>Open requests with ranked supply suggestions: full coverage first, then lowest price.</dd></div>
+        <div class="entry"><dt>Order creation</dt><dd>Set the quantity, agreed price, delivery date and notes.</dd></div>
+        <div class="entry"><dt>Weekly summary</dt><dd>Requested, listed and sold quantities for every crop, with shortages and surpluses flagged.</dd></div>
+        <div class="entry"><dt>Pilot report</dt><dd>Completion rate, value traded, transport cost per order and spoiled quantity.</dd></div>
+        <div class="entry"><dt>User management</dt><dd>Activate or deactivate accounts, and filter by shops, farmers or coordinators.</dd></div>
+        <div class="entry"><dt>Crop catalogue</dt><dd>Add, rename or hide crops. A starter list is already loaded.</dd></div>
+      </dl>
+    </div>
+
+    <div class="group">
+      <div><h3>Orders and trust</h3><span class="for">Everyone involved</span></div>
+      <dl>
+        <div class="entry"><dt>Order tracking</dt><dd>Every order shows its status, price, total value and delivery date.</dd></div>
+        <div class="entry"><dt>Full history</dt><dd>Each change is saved with who made it, when, and why.</dd></div>
+        <div class="entry"><dt>Automatic recovery</dt><dd>A cancelled or failed order returns the stock and reopens the request.</dd></div>
+      </dl>
+    </div>
+
+    <div class="group">
+      <div><h3>Made for use in Rwanda</h3><span class="for">Everyone</span></div>
+      <dl>
+        <div class="entry"><dt>Works on any phone</dt><dd>Pages fit small screens and open in any browser.</dd></div>
+        <div class="entry"><dt>Prices in RWF</dt><dd>Amounts, totals and costs are shown in Rwandan francs.</dd></div>
+        <div class="entry"><dt>All 30 districts</dt><dd>Shops and farmers choose their district when they sign up.</dd></div>
+        <div class="entry"><dt>Android app</dt><dd>An installable app is available for shops, farmers and coordinators.</dd></div>
+      </dl>
+    </div>
+
+    <p style="margin-top:40px"><a class="btn btn-green" href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">Try these features in the portal</a></p>
+  </div>
+</section>
+
+<section id="inside">
+  <div class="wrap">
+    <h2>A look inside the portal.</h2>
+    <p class="sec-intro">Coordinators see demand and supply side by side, and everyone can follow an order from start to finish.</p>
+    <div class="panels">
+      <div class="panel">
+        <h3>Weekly summary</h3>
+        <p class="sub">Kilograms this week</p>
+        <table>
+          <thead><tr><th>Crop</th><th>Requested</th><th>Listed</th><th>Balance</th></tr></thead>
+          <tbody>
+            <tr><td>Tomatoes</td><td>420</td><td>300</td><td class="short">Short 120</td></tr>
+            <tr><td>Onions</td><td>250</td><td>380</td><td class="surplus">Surplus 130</td></tr>
+            <tr><td>Irish potatoes</td><td>600</td><td>600</td><td class="even">Balanced</td></tr>
+            <tr><td>Cabbage</td><td>180</td><td>90</td><td class="short">Short 90</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Order history</h3>
+        <p class="sub">Tomatoes, 50 kg</p>
+        <ol class="timeline">
+          <li class="done"><b>Matched</b><small>Coordinator created the order</small></li>
+          <li class="done"><b>Confirmed</b><small>Farmer accepted</small></li>
+          <li class="now"><b>Delivered</b><small>Transport cost recorded</small></li>
+          <li><b>Completed</b><small>Waiting for the shop to confirm</small></li>
+        </ol>
+      </div>
+    </div>
+    <p class="sample" style="margin-top:14px">Sample data for illustration.</p>
+  </div>
+</section>
+
+<section id="who">
+  <div class="wrap">
+    <h2>Who Index is for.</h2>
+    <div class="who">
+      <div>
+        <h3>Grocery shops</h3>
+        <p>Know what sells, ask for what you need, and see exactly where each order stands.</p>
+        <a href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">Sign up as a shop</a>
+      </div>
+      <div>
+        <h3>Farmers and cooperatives</h3>
+        <p>List your harvest, see what shops want, and deliver against confirmed orders.</p>
+        <a href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">Sign up as a farmer</a>
+      </div>
+      <div>
+        <h3>Coordinators</h3>
+        <p>Match requests to supply, follow every delivery, and read clear weekly reports.</p>
+        <a href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">Open the portal</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2>Questions and answers.</h2>
+    <div class="faq">
+      <details><summary>How do I join?</summary><p>Open the official portal, choose Create an account, and pick whether you are a shop or a farmer. It takes a few minutes.</p></details>
+      <details><summary>Does Index handle payments?</summary><p>No. Index records the agreed price, quantity and delivery date. Payment is arranged directly between the shop and the farmer.</p></details>
+      <details><summary>What happens if an order fails?</summary><p>The person who cancels or marks it failed must write a reason. The reserved quantity goes back to the farmer and the shop's request opens again.</p></details>
+      <details><summary>How does the forecast work?</summary><p>It averages recent weeks of recorded sales to estimate next week, then compares that estimate with simply repeating last week, and shows which one is more accurate. It needs a few weeks of sales to start.</p></details>
+      <details><summary>Can I use Index on my phone?</summary><p>Yes. The portal opens in any phone browser, and an Android app is available for pilot users.</p></details>
+      <details><summary>Is my information protected?</summary><p>Passwords are stored scrambled, each person sees only their own records, and farmers never see shop names in the market demand view.</p></details>
+      <details><summary>Which crops are included?</summary><p>The starter list has tomatoes, onions, Irish potatoes, cabbage, carrots, green peppers and bananas. Coordinators can add more.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="next" id="next">
+  <div class="wrap">
+    <h2>Where Index is today.</h2>
+    <p class="sec-intro">Index is in its pilot stage, starting with shops in Kigali and farmers who supply them. These improvements are planned next.</p>
+    <ul>
+      <li>Kinyarwanda and French</li>
+      <li>SMS and WhatsApp notifications</li>
+      <li>Report downloads for Excel and PDF</li>
+      <li>One request filled by several farmers</li>
+    </ul>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap">
+    <div>
+      <h2>Try the official portal.</h2>
+      <p>Create an account as a shop or a farmer, and follow an order from request to delivery.</p>
+    </div>
+    <a class="btn btn-green" href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">Open the official portal</a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Index home">
+      <svg viewBox="0 0 118 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M12 3 C22 7 26 15 12 19 C-2 15 2 7 12 3 Z" fill="#1f7a47"/>
+        <rect x="7" y="23" width="10" height="20" rx="2.5" fill="#172019"/>
+        <text x="25" y="43" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="38" font-weight="700" letter-spacing="-1" fill="#172019">ndex</text>
+      </svg>
+    </a>
+    <nav aria-label="Footer">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#faq">Questions</a>
+      <a href="https://frontend-r3ap.vercel.app" target="_blank" rel="noopener">Official portal</a>
+    </nav>
+    <p class="copy">&copy; 2026 Index. Made in Rwanda.</p>
+  </div>
+</footer>
+
+</body>
+</html>
