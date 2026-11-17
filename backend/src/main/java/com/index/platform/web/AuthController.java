@@ -29,4 +29,25 @@ public class AuthController {
     public Dto.UserInfo update(@AuthenticationPrincipal AuthUser u, @Valid @RequestBody Dto.ProfileUpdateRequest r) {
         return auth.updateProfile(u.id(), r);
     }
+
+    @PostMapping("/verify-phone")
+    public Dto.AuthResponse verifyPhone(@Valid @RequestBody Dto.VerifyPhoneRequest r) { return auth.verifyPhone(r); }
+
+    @PostMapping("/resend-code")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resendCode(@Valid @RequestBody Dto.ResendCodeRequest r) { auth.resendPhoneCode(r.email()); }
+
+    @PostMapping("/forgot-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void forgot(@Valid @RequestBody Dto.ForgotPasswordRequest r) { auth.forgotPassword(r.email()); }
+
+    @PostMapping("/reset-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reset(@Valid @RequestBody Dto.ResetPasswordRequest r) { auth.resetPassword(r); }
+
+    @PostMapping("/change-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void change(@AuthenticationPrincipal AuthUser u, @Valid @RequestBody Dto.ChangePasswordRequest r) {
+        auth.changePassword(u.id(), r);
+    }
 }

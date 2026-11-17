@@ -52,3 +52,19 @@ SHOP, FARMER, ADMIN. Send `Authorization: Bearer <token>` from `/api/auth/login`
 ## Deploy (free tiers)
 Database: Neon or Supabase (use the JDBC URL as `DB_URL`). Backend: Render or Railway using the Dockerfile.
 Set `JWT_SECRET`, `ADMIN_PASSWORD`, `CORS_ORIGINS` (your frontend URL).
+
+## New in this version
+- Contact details (phone, location) on matched orders, visible only to the other side and the admin
+- In-app notifications, plus optional SMS (Africa's Talking) and WhatsApp (Twilio) in English or Kinyarwanda
+- Password reset by SMS code or admin-issued code, and change password
+- Admin approval of new accounts (`REQUIRE_APPROVAL=false` switches it off)
+- Payment status on orders (marked paid, confirmed received). Index records it and never moves money
+- Edit requests and sales, quick sales entry, one-tap repeat requests
+- Partial fulfilment: one request can be filled by several farmers
+- Delivery method on orders, photo, quality grade, harvest date, minimum order and pickup point on listings
+- Star ratings and reliability scores
+- Price trends, CSV exports (open in Excel), team members for shops and cooperatives
+- USSD menu for farmers without smartphones: point your provider's callback to `/api/ussd/{USSD_SECRET}`
+
+### Optional environment variables
+`REQUIRE_APPROVAL`, `AT_USERNAME`, `AT_API_KEY`, `AT_SENDER_ID`, `TWILIO_SID`, `TWILIO_TOKEN`, `TWILIO_WHATSAPP_FROM`, `USSD_SECRET`

@@ -36,3 +36,11 @@ npm run dev
 4. Set `CORS_ORIGINS` on Render to your Vercel URL and redeploy.
 
 Endpoints and the order flow are documented in `backend/README.md`.
+
+
+## New features
+See `CHANGES.md` for everything added in this version (alerts, Kinyarwanda, password reset, account approval,
+payment status, partial fulfilment, photos, ratings, team accounts, USSD, offline use, exports and price trends).
+
+
+Version 3 added problem reports, delivery codes, the marketplace, repeating requests, KPIs, a support inbox, alerts, tests and backups. See the top of `CHANGES.md`.

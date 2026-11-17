@@ -23,4 +23,10 @@ public class FarmSupply {
     @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
 
     @PrePersist void onCreate() { createdAt = Instant.now(); }
+
+    @Column(name = "quality_grade", length = 10) private String qualityGrade;
+    @Column(name = "harvest_date") private LocalDate harvestDate;
+    @Column(name = "min_order_quantity", precision = 12, scale = 2) private BigDecimal minOrderQuantity;
+    @Column(name = "pickup_point", length = 200) private String pickupPoint;
+    @Column(name = "photo_updated_at") private Instant photoUpdatedAt;
 }

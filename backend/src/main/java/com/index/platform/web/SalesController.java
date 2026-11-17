@@ -4,8 +4,10 @@ import com.index.platform.dto.Dto;
 import com.index.platform.security.AuthUser;
 import com.index.platform.service.SalesService;
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -26,12 +28,26 @@ public class SalesController {
         return service.create(u, r);
     }
 
+    @PostMapping("/batch")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<Dto.SalesResponse> batch(@AuthenticationPrincipal AuthUser u, @Valid @RequestBody Dto.BatchSalesRequest r) {
+        return service.createBatch(u, r);
+    }
+
+    @PutMapping("/{id}")
+    public Dto.SalesResponse update(@AuthenticationPrincipal AuthUser u, @PathVariable Long id, @Valid @RequestBody Dto.SalesRequest r) {
+        return service.update(u, id, r);
+    }
+
     @GetMapping
     public List<Dto.SalesResponse> list(@AuthenticationPrincipal AuthUser u,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         return service.list(u, from, to);
     }
+
+    @GetMapping("/last-prices")
+    public Map<Long, BigDecimal> lastPrices(@AuthenticationPrincipal AuthUser u) { return service.lastPrices(u); }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

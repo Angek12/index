@@ -16,6 +16,11 @@ public interface FarmSupplyRepository extends JpaRepository<FarmSupply, Long> {
     @Query("select s from FarmSupply s where s.id = :id")
     Optional<FarmSupply> findByIdForUpdate(@Param("id") Long id);
 
+    @Query("select s from FarmSupply s where s.status = :status and s.quantityAvailable > 0 "
+         + "and s.availableFrom <= :date and (s.availableUntil is null or s.availableUntil >= :date) "
+         + "order by s.pricePerUnit asc")
+    List<FarmSupply> findMarketListings(@Param("status") SupplyStatus status, @Param("date") LocalDate date);
+
     @Query("select s from FarmSupply s where s.crop.id = :cropId and s.status = :status and s.quantityAvailable > 0 "
          + "and s.availableFrom <= :date and (s.availableUntil is null or s.availableUntil >= :date) "
          + "order by s.pricePerUnit asc")

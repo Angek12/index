@@ -29,7 +29,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")) {
             try {
                 Long id = jwt.parseUserId(header.substring(7));
-                users.findById(id).filter(u -> u.isActive()).ifPresent(u -> {
+                users.findById(id).filter(u -> u.isActive() && u.getApprovalStatus() == com.index.platform.domain.ApprovalStatus.APPROVED).ifPresent(u -> {
                     AuthUser principal = new AuthUser(u.getId(), u.getEmail(), u.getRole());
                     var auth = new UsernamePasswordAuthenticationToken(principal, null,
                             List.of(new SimpleGrantedAuthority("ROLE_" + u.getRole().name())));

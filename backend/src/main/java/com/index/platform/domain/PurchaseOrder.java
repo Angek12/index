@@ -29,4 +29,16 @@ public class PurchaseOrder {
 
     @PrePersist void onCreate() { createdAt = Instant.now(); updatedAt = createdAt; }
     @PreUpdate void onUpdate() { updatedAt = Instant.now(); }
+
+    @Enumerated(EnumType.STRING) @Column(name = "payment_status", nullable = false, length = 20) private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
+    @Column(name = "payment_method", length = 30) private String paymentMethod;
+    @Column(name = "payment_reference", length = 80) private String paymentReference;
+    @Column(name = "paid_at") private Instant paidAt;
+    @Column(name = "received_at") private Instant receivedAt;
+    @Enumerated(EnumType.STRING) @Column(name = "delivery_method", nullable = false, length = 30) private DeliveryMethod deliveryMethod = DeliveryMethod.TO_BE_AGREED;
+    @Column(name = "pickup_point", length = 200) private String pickupPoint;
+    @Column(name = "transport_paid_by", length = 20) private String transportPaidBy;
+
+    @Column(name = "delivery_code", length = 6) private String deliveryCode;
+    @Enumerated(EnumType.STRING) @Column(nullable = false, length = 20) private OrderSource source = OrderSource.ADMIN;
 }
