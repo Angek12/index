@@ -3,20 +3,24 @@ package com.index.platform.web;
 import com.index.platform.domain.SupplyStatus;
 import com.index.platform.dto.Dto;
 import com.index.platform.security.AuthUser;
+import com.index.platform.service.PhotoService;
 import com.index.platform.service.SupplyService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/supplies")
 @RequiredArgsConstructor
 public class SupplyController {
     private final SupplyService service;
+    private final PhotoService photos;
 
     @PostMapping
     @PreAuthorize("hasRole('FARMER')")
@@ -44,5 +48,18 @@ public class SupplyController {
     @PreAuthorize("hasAnyRole('FARMER','ADMIN')")
     public Dto.SupplyResponse withdraw(@AuthenticationPrincipal AuthUser u, @PathVariable Long id) {
         return service.withdraw(u, id);
+    }
+
+    @PostMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('FARMER','ADMIN')")
+    public Dto.SupplyResponse uploadPhoto(@AuthenticationPrincipal AuthUser u, @PathVariable Long id,
+                                          @RequestParam("file") MultipartFile file) {
+        return photos.save(u, id, file);
+    }
+
+    @DeleteMapping("/{id}/photo")
+    @PreAuthorize("hasAnyRole('FARMER','ADMIN')")
+    public Dto.SupplyResponse deletePhoto(@AuthenticationPrincipal AuthUser u, @PathVariable Long id) {
+        return photos.delete(u, id);
     }
 }

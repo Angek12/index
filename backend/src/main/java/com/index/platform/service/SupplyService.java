@@ -6,6 +6,7 @@ import com.index.platform.exception.ApiException;
 import com.index.platform.repo.*;
 import com.index.platform.security.AuthUser;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,11 @@ public class SupplyService {
     private final FarmSupplyRepository supplies;
     private final CropRepository crops;
     private final ProfileResolver profiles;
+    private final ReputationService reputation;
+
+    public Dto.SupplyResponse toResponse(FarmSupply s) {
+        return Mappers.supply(s, reputation.farmer(s.getFarmer().getId()));
+    }
 
     @Transactional
     public Dto.SupplyResponse create(AuthUser u, Dto.SupplyCreateRequest r) {
@@ -26,22 +32,36 @@ public class SupplyService {
         FarmSupply s = new FarmSupply();
         s.setFarmer(farmer); s.setCrop(crop); s.setQuantityAvailable(r.quantityAvailable());
         s.setPricePerUnit(r.pricePerUnit()); s.setAvailableFrom(r.availableFrom());
-        s.setAvailableUntil(r.availableUntil()); s.setNotes(r.notes()); s.setStatus(SupplyStatus.AVAILABLE);
-        return Mappers.supply(supplies.save(s));
+        s.setAvailableUntil(r.availableUntil()); s.setQualityGrade(r.qualityGrade()); s.setHarvestDate(r.harvestDate());
+        s.setMinOrderQuantity(r.minOrderQuantity()); s.setPickupPoint(r.pickupPoint());
+        s.setNotes(r.notes()); s.setStatus(SupplyStatus.AVAILABLE);
+        return toResponse(supplies.save(s));
     }
 
     @Transactional(readOnly = true)
     public List<Dto.SupplyResponse> mine(AuthUser u) {
         FarmerProfile farmer = profiles.farmer(u);
-        return supplies.findByFarmerIdOrderByCreatedAtDesc(farmer.getId()).stream().map(Mappers::supply).toList();
+        return supplies.findByFarmerIdOrderByCreatedAtDesc(farmer.getId()).stream().map(this::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public List<Dto.SupplyResponse> all(SupplyStatus status) {
         List<FarmSupply> list = status == null ? supplies.findAllByOrderByCreatedAtDesc()
                 : supplies.findByStatusOrderByCreatedAtDesc(status);
-        return list.stream().map(Mappers::supply).toList();
+        return list.stream().map(this::toResponse).toList();
     }
+
+    /** Everything shops can order directly: available listings, optionally for one crop or district. */
+    @Transactional(readOnly = true)
+    public List<Dto.SupplyResponse> marketListings(Long cropId, String district) {
+        return supplies.findMarketListings(SupplyStatus.AVAILABLE, LocalDate.now()).stream()
+                .filter(s -> cropId == null || s.getCrop().getId().equals(cropId))
+                .filter(s -> district == null || district.isBlank() || district.equalsIgnoreCase(s.getFarmer().getDistrict()))
+                .map(this::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Dto.SupplyResponse get(AuthUser u, Long id) { return toResponse(owned(u, id)); }
 
     @Transactional
     public Dto.SupplyResponse update(AuthUser u, Long id, Dto.SupplyUpdateRequest r) {
@@ -52,26 +72,28 @@ public class SupplyService {
         s.setPricePerUnit(r.pricePerUnit());
         s.setAvailableFrom(r.availableFrom());
         s.setAvailableUntil(r.availableUntil());
+        s.setQualityGrade(r.qualityGrade()); s.setHarvestDate(r.harvestDate());
+        s.setMinOrderQuantity(r.minOrderQuantity()); s.setPickupPoint(r.pickupPoint());
         s.setNotes(r.notes());
         s.setStatus(r.quantityAvailable().compareTo(BigDecimal.ZERO) > 0 ? SupplyStatus.AVAILABLE : SupplyStatus.SOLD_OUT);
-        return Mappers.supply(s);
+        return toResponse(s);
     }
 
     @Transactional
     public Dto.SupplyResponse withdraw(AuthUser u, Long id) {
         FarmSupply s = owned(u, id);
         s.setStatus(SupplyStatus.WITHDRAWN);
-        return Mappers.supply(s);
+        return toResponse(s);
     }
 
-    private FarmSupply owned(AuthUser u, Long id) {
+    public FarmSupply owned(AuthUser u, Long id) {
         FarmSupply s = supplies.findById(id).orElseThrow(() -> ApiException.notFound("Supply listing"));
-        if (u.role() != Role.ADMIN && !s.getFarmer().getUser().getId().equals(u.id()))
+        if (u.role() != Role.ADMIN && !profiles.isFarmerSide(u, s.getFarmer()))
             throw ApiException.forbidden("This listing belongs to another farmer");
         return s;
     }
 
-    private void checkDates(java.time.LocalDate from, java.time.LocalDate until) {
+    private void checkDates(LocalDate from, LocalDate until) {
         if (until != null && until.isBefore(from)) throw ApiException.badRequest("availableUntil must not be before availableFrom");
     }
 }

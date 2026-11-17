@@ -35,6 +35,7 @@ public class DataSeeder implements ApplicationRunner {
         admin.setPasswordHash(encoder.encode(password));
         admin.setFullName(fullName);
         admin.setRole(Role.ADMIN);
+        admin.setPhoneVerified(true);
         users.save(admin);
         log.info("Seeded admin account {}", email);
     }

@@ -17,6 +17,10 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 1MB
 
 app:
   jwt:
@@ -28,6 +32,28 @@ app:
     full-name: ${ADMIN_NAME:Index Admin}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+  # New accounts wait for admin approval (set REQUIRE_APPROVAL=false to switch off)
+  require-approval: ${REQUIRE_APPROVAL:true}
+  # Ask new users to confirm their phone number with an SMS code (needs SMS keys, or an admin confirms by hand)
+  require-phone-verification: ${REQUIRE_PHONE_VERIFICATION:false}
+  # Shops can order directly from farmer listings
+  marketplace-enabled: ${MARKETPLACE_ENABLED:true}
+  # Farmers must enter the shop's delivery code to mark an order as delivered
+  require-delivery-code: ${REQUIRE_DELIVERY_CODE:true}
+  # SMS through Africa's Talking (leave blank to only log messages)
+  sms:
+    at-username: ${AT_USERNAME:}
+    at-api-key: ${AT_API_KEY:}
+    at-sender: ${AT_SENDER_ID:}
+    at-base-url: ${AT_BASE_URL:https://api.africastalking.com}
+  # WhatsApp through Twilio (leave blank to disable)
+  whatsapp:
+    twilio-sid: ${TWILIO_SID:}
+    twilio-token: ${TWILIO_TOKEN:}
+    twilio-from: ${TWILIO_WHATSAPP_FROM:}
+  # USSD callback secret, used in the callback address /api/ussd/{secret}
+  ussd:
+    secret: ${USSD_SECRET:}
 
 management:
   endpoints:

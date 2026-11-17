@@ -3,6 +3,7 @@ package com.index.platform.web;
 import com.index.platform.domain.OrderStatus;
 import com.index.platform.dto.Dto;
 import com.index.platform.security.AuthUser;
+import com.index.platform.service.IssueService;
 import com.index.platform.service.OrderService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -17,8 +18,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService service;
+    private final IssueService issueService;
 
-    /** Admin matches a shop's demand request to a farmer's supply listing. */
+    /** Admin matches a shop's demand request to a farmer's supply listing (one request can have several orders). */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
@@ -47,5 +49,36 @@ public class OrderController {
     public Dto.OrderResponse updateStatus(@AuthenticationPrincipal AuthUser u, @PathVariable Long id,
                                           @Valid @RequestBody Dto.OrderStatusRequest r) {
         return service.updateStatus(u, id, r);
+    }
+
+    @PatchMapping("/{id}/payment")
+    public Dto.OrderResponse payment(@AuthenticationPrincipal AuthUser u, @PathVariable Long id,
+                                     @Valid @RequestBody Dto.PaymentRequest r) {
+        return service.updatePayment(u, id, r);
+    }
+
+    @PatchMapping("/{id}/delivery")
+    public Dto.OrderResponse delivery(@AuthenticationPrincipal AuthUser u, @PathVariable Long id,
+                                      @Valid @RequestBody Dto.DeliveryRequest r) {
+        return service.updateDelivery(u, id, r);
+    }
+
+    @PostMapping("/{id}/issues")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Dto.IssueResponse reportIssue(@AuthenticationPrincipal AuthUser u, @PathVariable Long id,
+                                         @Valid @RequestBody Dto.CreateIssueRequest r) {
+        return issueService.create(u, id, r);
+    }
+
+    @GetMapping("/{id}/issues")
+    public List<Dto.IssueResponse> issues(@AuthenticationPrincipal AuthUser u, @PathVariable Long id) {
+        return issueService.forOrder(u, id);
+    }
+
+    @PostMapping("/{id}/rating")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Dto.OrderResponse rate(@AuthenticationPrincipal AuthUser u, @PathVariable Long id,
+                                  @Valid @RequestBody Dto.RatingRequest r) {
+        return service.rate(u, id, r);
     }
 }

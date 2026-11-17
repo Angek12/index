@@ -21,4 +21,12 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
 
     @PrePersist void onCreate() { createdAt = Instant.now(); }
+
+    @Enumerated(EnumType.STRING) @Column(name = "approval_status", nullable = false, length = 20) private ApprovalStatus approvalStatus = ApprovalStatus.APPROVED;
+    @Column(nullable = false, length = 5) private String language = "en";
+    @Column(name = "notify_sms", nullable = false) private boolean notifySms = true;
+    @Column(name = "notify_whatsapp", nullable = false) private boolean notifyWhatsapp = false;
+
+    @Column(name = "phone_verified", nullable = false) private boolean phoneVerified = false;
+    @Column(name = "terms_accepted_at") private Instant termsAcceptedAt;
 }

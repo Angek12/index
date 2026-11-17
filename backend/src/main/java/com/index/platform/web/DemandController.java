@@ -25,13 +25,32 @@ public class DemandController {
         return service.create(u, r);
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('SHOP')")
+    public Dto.DemandResponse update(@AuthenticationPrincipal AuthUser u, @PathVariable Long id,
+                                     @Valid @RequestBody Dto.DemandCreateRequest r) {
+        return service.update(u, id, r);
+    }
+
+    @PostMapping("/{id}/repeat")
+    @PreAuthorize("hasRole('SHOP')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Dto.DemandResponse repeat(@AuthenticationPrincipal AuthUser u, @PathVariable Long id,
+                                     @Valid @RequestBody Dto.RepeatRequest r) {
+        return service.repeat(u, id, r);
+    }
+
     @GetMapping("/mine")
     @PreAuthorize("hasRole('SHOP')")
     public List<Dto.DemandResponse> mine(@AuthenticationPrincipal AuthUser u) { return service.mine(u); }
 
+    /** needsMatch=true returns requests that still need a farmer (open or partly matched). */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Dto.DemandResponse> all(@RequestParam(required = false) DemandStatus status) { return service.all(status); }
+    public List<Dto.DemandResponse> all(@RequestParam(required = false) DemandStatus status,
+                                        @RequestParam(defaultValue = "false") boolean needsMatch) {
+        return service.all(status, needsMatch);
+    }
 
     @PatchMapping("/{id}/cancel")
     @PreAuthorize("hasAnyRole('SHOP','ADMIN')")

@@ -18,4 +18,6 @@ public class FarmerProfile {
     @Column(length = 80) private String district;
     @Column(length = 80) private String sector;
     @Column(length = 255) private String address;
+
+    @Column(nullable = false) private boolean cooperative = false;
 }

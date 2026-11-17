@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.index.platform.domain.*;
 import com.index.platform.security.JwtService;
 import com.index.platform.service.OrderService;
+import com.index.platform.util.PhoneUtil;
 import org.junit.jupiter.api.Test;
 
 class CoreLogicTest {
@@ -25,5 +26,13 @@ class CoreLogicTest {
         assertFalse(OrderService.canTransition(OrderStatus.MATCHED, OrderStatus.COMPLETED));
         assertFalse(OrderService.canTransition(OrderStatus.COMPLETED, OrderStatus.FAILED));
         assertFalse(OrderService.canTransition(OrderStatus.CANCELLED, OrderStatus.MATCHED));
+    }
+
+    @Test
+    void phoneNumbersAreNormalised() {
+        assertEquals("+250795288755", PhoneUtil.normalize("0795 288 755"));
+        assertEquals("+250795288755", PhoneUtil.normalize("250795288755"));
+        assertEquals("+250795288755", PhoneUtil.normalize("+250795288755"));
+        assertTrue(PhoneUtil.variants("+250795288755").contains("0795288755"));
     }
 }

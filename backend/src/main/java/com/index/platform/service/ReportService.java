@@ -32,7 +32,7 @@ public class ReportService {
         String sql = """
             SELECT c.id, c.name,
               COALESCE((SELECT SUM(d.quantity) FROM demand_requests d
-                        WHERE d.crop_id = c.id AND d.status IN ('OPEN','MATCHED')
+                        WHERE d.crop_id = c.id AND d.status IN ('OPEN','PARTIAL','MATCHED')
                           AND d.needed_by BETWEEN ? AND ?), 0) AS demand_qty,
               COALESCE((SELECT SUM(s.quantity_available) FROM farm_supplies s
                         WHERE s.crop_id = c.id AND s.status = 'AVAILABLE'
@@ -54,9 +54,9 @@ public class ReportService {
     /** Aggregated open demand per crop. Safe for farmers to see (no shop names). */
     public List<Dto.MarketDemand> marketDemand() {
         String sql = """
-            SELECT c.id, c.name, c.unit, SUM(d.quantity) AS total, MIN(d.needed_by) AS earliest, COUNT(*) AS n
+            SELECT c.id, c.name, c.unit, SUM(d.quantity - COALESCE((SELECT SUM(o.quantity) FROM orders o WHERE o.demand_request_id = d.id AND o.status IN ('MATCHED','CONFIRMED','DELIVERED','COMPLETED')), 0)) AS total, MIN(d.needed_by) AS earliest, COUNT(*) AS n
             FROM demand_requests d JOIN crops c ON c.id = d.crop_id
-            WHERE d.status = 'OPEN' AND d.needed_by >= CURRENT_DATE
+            WHERE d.status IN ('OPEN','PARTIAL') AND d.needed_by >= CURRENT_DATE
             GROUP BY c.id, c.name, c.unit ORDER BY total DESC
             """;
         return jdbc.query(sql, (rs, i) -> new Dto.MarketDemand(rs.getLong("id"), rs.getString("name"),
@@ -112,6 +112,35 @@ public class ReportService {
         return new Dto.ForecastResponse(cropId, crop.getName(), shopId, window, points, next, maeMaOut, maeNaiveOut, mapeOut, better);
     }
 
+    /** Weekly average shop selling price and average agreed order price for one crop. */
+    public Dto.PriceTrend priceTrends(Long cropId, int weeksParam) {
+        int weeks = Math.max(4, Math.min(weeksParam, 52));
+        Crop crop = crops.findById(cropId).orElseThrow(() -> ApiException.notFound("Crop"));
+        LocalDate end = LocalDate.now();
+        LocalDate start = end.minusWeeks(weeks);
+        String sql = """
+            SELECT w.week::date AS week_start,
+              (SELECT SUM(sr.quantity * sr.unit_price) / NULLIF(SUM(sr.quantity), 0) FROM sales_records sr
+                WHERE sr.crop_id = ? AND sr.sold_on >= w.week::date AND sr.sold_on < w.week::date + 7) AS retail,
+              (SELECT SUM(o.quantity * o.agreed_price) / NULLIF(SUM(o.quantity), 0) FROM orders o
+                WHERE o.crop_id = ? AND o.status NOT IN ('CANCELLED','FAILED')
+                  AND o.delivery_date >= w.week::date AND o.delivery_date < w.week::date + 7) AS agreed
+            FROM generate_series(date_trunc('week', CAST(? AS timestamp)), date_trunc('week', CAST(? AS timestamp)), interval '1 week') AS w(week)
+            ORDER BY w.week
+            """;
+        List<Dto.PricePoint> pts = jdbc.query(sql, (rs, i) -> new Dto.PricePoint(
+                rs.getObject("week_start", LocalDate.class), round0(rs.getBigDecimal("retail")), round0(rs.getBigDecimal("agreed"))),
+                cropId, cropId, start, end);
+        BigDecimal lastRetail = null, lastAgreed = null;
+        for (Dto.PricePoint p : pts) {
+            if (p.retailPrice() != null) lastRetail = p.retailPrice();
+            if (p.agreedPrice() != null) lastAgreed = p.agreedPrice();
+        }
+        return new Dto.PriceTrend(cropId, crop.getName(), crop.getUnit(), pts, lastRetail, lastAgreed);
+    }
+
+    private static BigDecimal round0(BigDecimal v) { return v == null ? null : v.setScale(0, RoundingMode.HALF_UP); }
+
     /** Pilot results sheet: what worked, what failed, cost per fulfilled order. */
     public Dto.PilotEconomics pilotEconomics() {
         String sql = """
@@ -122,7 +151,9 @@ public class ReportService {
               COALESCE(SUM(quantity) FILTER (WHERE status = 'COMPLETED'), 0) AS qty,
               COALESCE(SUM(quantity * agreed_price) FILTER (WHERE status = 'COMPLETED'), 0) AS value,
               COALESCE(SUM(transport_cost) FILTER (WHERE status = 'COMPLETED'), 0) AS transport,
-              COALESCE(SUM(spoiled_quantity) FILTER (WHERE status IN ('DELIVERED','COMPLETED')), 0) AS spoiled
+              COALESCE(SUM(spoiled_quantity) FILTER (WHERE status IN ('DELIVERED','COMPLETED')), 0) AS spoiled,
+              COALESCE(SUM(quantity * agreed_price) FILTER (WHERE status = 'COMPLETED' AND payment_status = 'RECEIVED'), 0) AS received_value,
+              COALESCE(SUM(quantity * agreed_price) FILTER (WHERE status = 'COMPLETED' AND payment_status <> 'RECEIVED'), 0) AS unpaid_value
             FROM orders
             """;
         return jdbc.queryForObject(sql, (rs, i) -> {
@@ -135,7 +166,8 @@ public class ReportService {
             BigDecimal rate = closed > 0
                     ? BigDecimal.valueOf(100.0 * completed / closed).setScale(1, RoundingMode.HALF_UP) : null;
             return new Dto.PilotEconomics(total, completed, failed, cancelled, rs.getBigDecimal("qty"),
-                    rs.getBigDecimal("value"), transport, rs.getBigDecimal("spoiled"), perOrder, rate);
+                    rs.getBigDecimal("value"), transport, rs.getBigDecimal("spoiled"), perOrder, rate,
+                    rs.getBigDecimal("received_value"), rs.getBigDecimal("unpaid_value"));
         });
     }
 
@@ -146,6 +178,7 @@ public class ReportService {
         m.put("farmers", count("SELECT COUNT(*) FROM users WHERE role = 'FARMER' AND active"));
         m.put("openDemandRequests", count("SELECT COUNT(*) FROM demand_requests WHERE status = 'OPEN'"));
         m.put("availableSupplyListings", count("SELECT COUNT(*) FROM farm_supplies WHERE status = 'AVAILABLE'"));
+        m.put("pendingAccounts", count("SELECT COUNT(*) FROM users WHERE approval_status = 'PENDING'"));
         Map<String, Long> byStatus = new LinkedHashMap<>();
         jdbc.query("SELECT status, COUNT(*) AS c FROM orders GROUP BY status ORDER BY status",
                 rs -> { byStatus.put(rs.getString("status"), rs.getLong("c")); });
